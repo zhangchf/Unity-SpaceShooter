@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoltMover : MonoBehaviour {
+public class ObjectMover : MonoBehaviour {
 
 	public float speed = 20.0f;
 
