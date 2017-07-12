@@ -29,8 +29,8 @@ public class PlayerController : MonoBehaviour {
 	void Update() {
 		if (Input.GetButton ("Fire1") && Time.time >= nextFireTime) {
 			nextFireTime += fireRate;
-//			Instantiate (shot, shotSpawnPoint.position, shotSpawnPoint.rotation);
-			Instantiate (shot, shotSpawnPoint, false);
+			Instantiate (shot, shotSpawnPoint.position, shotSpawnPoint.rotation);
+//			Instantiate (shot, shotSpawnPoint, false);
 		}
 	}
 

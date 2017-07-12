@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CollisionDestroyer : MonoBehaviour {
+public class DestroyByContact : MonoBehaviour {
 
 	public GameObject asteroidExplosion;
 	public GameObject playerExplosiion;
