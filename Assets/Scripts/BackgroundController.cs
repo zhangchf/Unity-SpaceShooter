@@ -17,7 +17,6 @@ public class BackgroundController : MonoBehaviour {
 	void Update () {
 		
 		float movement = Mathf.Repeat (Time.time * scrollSpeed, transform.localScale.y);
-		Debug.Log ("movement=" + movement);
 		transform.position = startPosition + Vector3.forward * movement;
 		
 	}

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DestroyByContact : MonoBehaviour {
 
-	public GameObject asteroidExplosion;
+	public GameObject selfExplosion;
 	public GameObject playerExplosiion;
 
 	public float scoreValue = 10f;
@@ -27,13 +27,18 @@ public class DestroyByContact : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
-		if (other.tag == "Boundary") {
+		if (other.CompareTag ("Boundary")
+			|| other.CompareTag ("Asteroid")
+			|| other.CompareTag ("Enemy")
+			|| other.CompareTag ("EnemyBolt")) {
 			return;
 		}
 
 		gameScore.AddScore (scoreValue);
 
-		Instantiate (asteroidExplosion, transform.position, transform.rotation);
+		if (selfExplosion != null) {
+			Instantiate (selfExplosion, transform.position, transform.rotation);
+		}
 		if (other.tag == "Player") {
 			Instantiate (playerExplosiion, other.transform.position, other.transform.rotation);
 			gameController.GameOver ();
