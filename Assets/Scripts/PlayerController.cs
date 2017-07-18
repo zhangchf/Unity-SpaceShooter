@@ -15,24 +15,55 @@ public class PlayerController : MonoBehaviour {
 	public float tilt;
 
 	public GameObject shot;
-	public Transform shotSpawnPoint;
+	public Transform shotSpawnMidPoint;
+	public Transform shotSpawnLeftPoint;
+	public Transform shotSpawnRightPoint;
 	public float fireRate = 0.25f;
+	public int fireLevel = 0;
 
 
 	Rigidbody rb;
 	AudioSource audioSrc;
 	float nextFireTime = 0f;
+	List<Transform> shotSpawnPoints = new List<Transform> ();
+	int newFireLevel = 2;
+
+	// After each of this interval, change the fire level.
+	int fireLevelChangeTime = 3;
 
 	void Start() {
 		rb = GetComponent<Rigidbody> ();
 		audioSrc = GetComponent<AudioSource> ();
+
+		InvokeRepeating ("changeFireLevel", 0, fireLevelChangeTime);
 	}
 
 	void Update() {
+
 		if (Input.GetButton ("Fire1") && Time.time >= nextFireTime) {
 			nextFireTime = Time.time + fireRate;
-			Instantiate (shot, shotSpawnPoint.position, shotSpawnPoint.rotation);
-//			Instantiate (shot, shotSpawnPoint, false);
+//			Instantiate (shot, shotSpawnMidPoint.position, shotSpawnMidPoint.rotation);
+			if (newFireLevel != fireLevel || shotSpawnPoints.Count == 0) {
+				fireLevel = newFireLevel;
+				shotSpawnPoints.Clear ();
+				switch (fireLevel) {
+				case 1:
+					shotSpawnPoints.Add (shotSpawnMidPoint);
+					break;
+				case 2:
+					shotSpawnPoints.Add (shotSpawnLeftPoint);
+					shotSpawnPoints.Add (shotSpawnRightPoint);
+					break;
+				case 3:
+					shotSpawnPoints.Add (shotSpawnMidPoint);
+					shotSpawnPoints.Add (shotSpawnLeftPoint);
+					shotSpawnPoints.Add (shotSpawnRightPoint);
+					break;
+				}
+			}
+			foreach (Transform t in shotSpawnPoints) {
+				Instantiate (shot, t, false);
+			}
 			audioSrc.Play ();
 		}
 	}
@@ -49,5 +80,9 @@ public class PlayerController : MonoBehaviour {
 		rb.position = new Vector3 (clampedX, 0.0f, clampedZ);
 
 		rb.rotation = Quaternion.Euler (0.0f, 0.0f, rb.velocity.x * -tilt);
+	}
+
+	void changeFireLevel() {
+		newFireLevel = (fireLevel) % 3 + 1;
 	}
 }
