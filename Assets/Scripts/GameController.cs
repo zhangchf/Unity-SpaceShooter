@@ -8,6 +8,7 @@ public class GameController : MonoBehaviour {
 
 	public GameObject[] hazards;
 	public Vector3 spawnPositionVector;
+	public Vector3 spawnReversePositionVector;
 	public float hazardCountPerWave;
 	public float startDelay;
 	public float hazardDelay;
@@ -37,9 +38,19 @@ public class GameController : MonoBehaviour {
 		while(true) {
 			for (int i = 0; i < hazardCountPerWave; i++) {
 				GameObject hazard = hazards [Random.Range (0, hazards.Length)];
-				Vector3 spawnPosition = new Vector3 (Random.Range (-spawnPositionVector.x, spawnPositionVector.x), spawnPositionVector.y, spawnPositionVector.z);
+
+				bool spawnReverse = Random.value > 0.8;
+				Vector3 spawnPos = spawnPositionVector;
+				if (spawnReverse) {
+					spawnPos = spawnReversePositionVector;
+				}
+				Vector3 spawnPosition = new Vector3 (Random.Range (-spawnPos.x, spawnPos.x), spawnPos.y, spawnPos.z);
 				Quaternion spawnRotation = Quaternion.identity;
-				Instantiate (hazard, spawnPosition, spawnRotation);
+				GameObject clone = Instantiate (hazard, spawnPosition, spawnRotation);
+				// Reverse the hazard's facing direction and move direction.
+				if (spawnReverse) {
+					clone.transform.Rotate (new Vector3(0f, 180f, 0f));
+				}
 				yield return new WaitForSeconds (hazardDelay);
 			}
 			yield return new WaitForSeconds (wavesDeley);
