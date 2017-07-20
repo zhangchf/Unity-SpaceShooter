@@ -15,14 +15,17 @@ public class GameController : MonoBehaviour {
 	public float wavesDeley;
 
 	public Text gameOverText;
-	public Text restartText;
+//	public Text restartText;
+	public GameObject restartButton;
 
 	bool isGameOver = false;
 	bool canRestart = false;
 
 	void Start() {
 		gameOverText.text = "";
-		restartText.text = "";
+//		restartText.text = "";
+		restartButton.SetActive (false);
+
 		StartCoroutine (SpawnWaves ());
 	}
 
@@ -55,7 +58,8 @@ public class GameController : MonoBehaviour {
 			}
 			yield return new WaitForSeconds (wavesDeley);
 			if (isGameOver) {
-				restartText.text = "Press 'R' to Restart";
+//				restartText.text = "Press 'R' to Restart";
+				restartButton.SetActive (true);
 				canRestart = true;
 				break;
 			}

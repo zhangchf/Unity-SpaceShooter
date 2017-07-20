@@ -22,6 +22,12 @@ public class PlayerController : MonoBehaviour {
 	public int fireLevel = 0;
 
 
+	//Touch movement and fire Handling
+	public TouchZone touchZone;
+	public FireZone leftFireZone;
+	public FireZone rightFireZone;
+
+
 	Rigidbody rb;
 	AudioSource audioSrc;
 	float nextFireTime = 0f;
@@ -31,16 +37,23 @@ public class PlayerController : MonoBehaviour {
 	// After each of this interval, change the fire level.
 	int fireLevelChangeTime = 3;
 
+	//Accelerometer Handling
+	Quaternion calibrationQuaternion;
+
+
 	void Start() {
 		rb = GetComponent<Rigidbody> ();
 		audioSrc = GetComponent<AudioSource> ();
 
 		InvokeRepeating ("changeFireLevel", 0, fireLevelChangeTime);
+
+//		CalibrateAccelerometer ();
 	}
 
 	void Update() {
-
-		if (Input.GetButton ("Fire1") && Time.time >= nextFireTime) {
+//		Debug.Log ("leftCanFire=" + leftFireZone.CanFire () + ",rightCanFire=" + rightFireZone.CanFire ());
+		bool canFire = leftFireZone.CanFire () || rightFireZone.CanFire ();
+		if (/*Input.GetButton ("Fire1")*/ canFire && Time.time >= nextFireTime) {
 			nextFireTime = Time.time + fireRate;
 //			Instantiate (shot, shotSpawnMidPoint.position, shotSpawnMidPoint.rotation);
 			if (newFireLevel != fireLevel || shotSpawnPoints.Count == 0) {
@@ -69,11 +82,23 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
-		float horizontal = Input.GetAxis ("Horizontal");
-		float vertical = Input.GetAxis ("Vertical");
+		// Keyboard control movement.
+//		float horizontal = Input.GetAxis ("Horizontal");
+//		float vertical = Input.GetAxis ("Vertical");
+//		Vector3 movement = new Vector3 (horizontal, 0.0f, vertical);
 
-		Vector3 movement = new Vector3 (horizontal, 0.0f, vertical);
+		// Accelerometer control movement.
+//		Vector3 accelerationRaw = Input.acceleration;
+//		Vector3 acceleration = FixAcceleration (accelerationRaw);
+//		Vector3 movement = new Vector3 (acceleration.x, 0f, acceleration.y);
+
+		// Touch control movement. 
+		Vector2 direction = touchZone.GetDirection ();
+		Vector3 movement = new Vector3 (direction.x, 0f, direction.y);
+
+		Debug.Log ("movement=" + movement);
 		rb.velocity = movement * speed;
+	
 
 		float clampedX = Mathf.Clamp (rb.position.x, boundary.xMin, boundary.xMax);
 		float clampedZ = Mathf.Clamp (rb.position.z, boundary.zMin, boundary.zMax);
@@ -85,4 +110,15 @@ public class PlayerController : MonoBehaviour {
 	void changeFireLevel() {
 		newFireLevel = (fireLevel) % 3 + 1;
 	}
+
+	void CalibrateAccelerometer() {
+		Vector3 accelerationSnapshot = Input.acceleration;
+		Quaternion rotateQuaternion = Quaternion.FromToRotation (new Vector3 (0f, 0f, -1f), accelerationSnapshot);
+		calibrationQuaternion = Quaternion.Inverse (rotateQuaternion);
+	}
+
+	Vector3 FixAcceleration(Vector3 acceleration) {
+		return calibrationQuaternion * acceleration;
+	}
+
 }
