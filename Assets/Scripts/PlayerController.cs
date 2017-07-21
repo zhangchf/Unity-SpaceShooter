@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour {
 	public TouchZone touchZone;
 	public FireZone leftFireZone;
 	public FireZone rightFireZone;
+	public Vector3 touchTargetMovement;
 
 
 	Rigidbody rb;
@@ -39,6 +40,8 @@ public class PlayerController : MonoBehaviour {
 
 	//Accelerometer Handling
 	Quaternion calibrationQuaternion;
+
+	// Tou
 
 
 	void Start() {
@@ -82,23 +85,33 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
+
 		// Keyboard control movement.
-//		float horizontal = Input.GetAxis ("Horizontal");
-//		float vertical = Input.GetAxis ("Vertical");
-//		Vector3 movement = new Vector3 (horizontal, 0.0f, vertical);
+		if (Input.GetAxis ("Horizontal") != 0f || Input.GetAxis ("Vertical") != 0f) {
+			float horizontal = Input.GetAxis ("Horizontal");
+			float vertical = Input.GetAxis ("Vertical");
+			Vector3 movement = new Vector3 (horizontal, 0.0f, vertical);
+			Debug.Log ("keyboard movement=" + movement);
+			rb.velocity = movement * speed;
+		}  else if (touchZone.GetDirection ().magnitude != 0f) {
+			// Touch control movement. 
+			Vector2 direction = touchZone.GetDirection ();
+			Vector3 movement = new Vector3 (direction.x, 0f, direction.y);
+			rb.velocity = movement * speed / 1.2f;
+		} /* else if (touchTargetMovement.magnitude != 0f) {
+			Vector3 touchMovement = Vector3.MoveTowards (transform.position, touchTargetMovement, Time.deltaTime*10f);
+			if (touchMovement.magnitude == 0f) {
+				touchTargetMovement = Vector3.zero;
+			}
+			rb.MovePosition (touchMovement);
+		} */
+
 
 		// Accelerometer control movement.
 //		Vector3 accelerationRaw = Input.acceleration;
 //		Vector3 acceleration = FixAcceleration (accelerationRaw);
 //		Vector3 movement = new Vector3 (acceleration.x, 0f, acceleration.y);
 
-		// Touch control movement. 
-		Vector2 direction = touchZone.GetDirection ();
-		Vector3 movement = new Vector3 (direction.x, 0f, direction.y);
-
-		Debug.Log ("movement=" + movement);
-		rb.velocity = movement * speed;
-	
 
 		float clampedX = Mathf.Clamp (rb.position.x, boundary.xMin, boundary.xMax);
 		float clampedZ = Mathf.Clamp (rb.position.z, boundary.zMin, boundary.zMax);
@@ -121,4 +134,7 @@ public class PlayerController : MonoBehaviour {
 		return calibrationQuaternion * acceleration;
 	}
 
+	public void MoveByTouch(Vector3 movementRaw) {
+		touchTargetMovement = transform.position + movementRaw;
+	}
 }

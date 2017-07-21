@@ -7,18 +7,22 @@ using UnityEngine.EventSystems;
 public class TouchZone : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler {
 
 	public float smoothing = 0.1f;
+	public PlayerController playerController;
 
 	private bool touched;
 	private int pointerId;
 	private Vector2 originalPosition;
 	private Vector2 direction;
 	private Vector2 smoothDirection;
-	private Vector2 movement;
+
+	private Vector3 previousPosition;
+	private Vector3 movement;
 
 	public void Awake() {
 		touched = false;
 		direction = Vector2.zero;
 		smoothDirection = Vector2.zero;
+		movement = Vector3.zero;
 	}
 
 	public void OnPointerDown(PointerEventData eventData) {
@@ -29,6 +33,9 @@ public class TouchZone : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 			originalPosition = eventData.position;
 			direction = Vector2.zero;
 			smoothDirection = Vector2.zero;
+
+			previousPosition = Camera.main.ScreenToWorldPoint (ToVector3 (eventData.position));
+			movement = Vector3.zero;
 		}		
 	}
 
@@ -37,6 +44,7 @@ public class TouchZone : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 		if (eventData.pointerId == pointerId) {
 			touched = false;
 			direction = Vector2.zero;
+			movement = Vector3.zero;
 		}		
 	}
 
@@ -45,8 +53,14 @@ public class TouchZone : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 		if (eventData.pointerId == pointerId) {
 			Vector2 directionRaw = eventData.position - originalPosition;
 			direction = directionRaw.normalized;
-			movement = directionRaw;
 			Debug.Log ("OnPointerDrag, direction=" + direction);
+
+			Vector3 currentPosition = ToVector3 (eventData.position);
+			movement = currentPosition - previousPosition;
+			previousPosition = currentPosition;
+			if (playerController != null) {
+				playerController.MoveByTouch (movement / 5f);
+			}
 		}
 	}
 
@@ -55,8 +69,7 @@ public class TouchZone : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 		return smoothDirection;
 	}
 
-	public Vector2 GetMovement() {
-		return movement;
+	public Vector3 ToVector3(Vector2 vector2) {
+		return new Vector3 (vector2.x, 0f, vector2.y);
 	}
-
 }

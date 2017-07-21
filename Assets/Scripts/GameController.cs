@@ -14,6 +14,10 @@ public class GameController : MonoBehaviour {
 	public float hazardDelay;
 	public float wavesDeley;
 
+	public GameObject fireZoneLeft;
+	public GameObject fireZoneRight;
+	public GameObject touchZone;
+
 	public Text gameOverText;
 //	public Text restartText;
 	public GameObject restartButton;
@@ -69,9 +73,17 @@ public class GameController : MonoBehaviour {
 	public void GameOver() {
 		isGameOver = true;
 		gameOverText.text = "Game Over";
+		EnableTouchAndFireZone (false);
 	}
 
 	public void Restart() {
 		SceneManager.LoadScene (0);
+		EnableTouchAndFireZone (true);
+	}
+
+	void EnableTouchAndFireZone(bool enable) {
+		fireZoneLeft.SetActive (enable);
+		fireZoneRight.SetActive (enable);
+		touchZone.SetActive (enable);
 	}
 }
